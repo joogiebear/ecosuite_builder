@@ -172,3 +172,50 @@ export function createMenuPresetSlot(presetId, row, column, page) {
       };
   }
 }
+
+export function getBorderCells(rowCount) {
+  const cells = [];
+  for (let col = 1; col <= 9; col++) {
+    cells.push({ row: 1, column: col });
+    if (rowCount > 1) cells.push({ row: rowCount, column: col });
+  }
+  for (let row = 2; row < rowCount; row++) {
+    cells.push({ row, column: 1 });
+    cells.push({ row, column: 9 });
+  }
+  return cells;
+}
+
+export function getRowCells(row) {
+  return Array.from({ length: 9 }, (_, i) => ({ row, column: i + 1 }));
+}
+
+export function getColumnCells(column, rowCount) {
+  return Array.from({ length: rowCount }, (_, i) => ({ row: i + 1, column }));
+}
+
+export function getPageCells(rowCount) {
+  const cells = [];
+  for (let row = 1; row <= rowCount; row++) {
+    for (let col = 1; col <= 9; col++) {
+      cells.push({ row, column: col });
+    }
+  }
+  return cells;
+}
+
+export function applyFill(slots, cells, page, itemId, rowCount, pageCount) {
+  const map = buildSlotMap(slots);
+  let result = slots;
+  for (const { row, column } of cells) {
+    if (!getMenuSlotFromMap(map, row, column, page)) {
+      result = upsertMenuSlot(
+        result,
+        { item: itemId, name: '', lore: '', row, column, page, clickActionType: 'none', clickActionValue: '' },
+        rowCount,
+        pageCount,
+      );
+    }
+  }
+  return result;
+}
