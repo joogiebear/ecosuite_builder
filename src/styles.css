@@ -764,6 +764,11 @@ select {
   display: flex;
   gap: 4px;
 }
+.fill-result {
+  font-size: 11px;
+  color: var(--muted-strong);
+  white-space: nowrap;
+}
 .fill-button {
   all: unset;
   cursor: pointer;

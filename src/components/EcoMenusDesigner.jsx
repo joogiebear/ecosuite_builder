@@ -32,6 +32,7 @@ export default function EcoMenusDesigner({ values, setValues }) {
   const [selectedPage, setSelectedPage] = useState(1);
   const [selectedCell, setSelectedCell] = useState({ row: 1, column: 1 });
   const [fillItem, setFillItem] = useState('');
+  const [fillResult, setFillResult] = useState('');
 
   useEffect(() => {
     if (selectedPage > pageCount) {
@@ -125,7 +126,10 @@ export default function EcoMenusDesigner({ values, setValues }) {
   function handleFill(cells) {
     const trimmed = fillItem.trim();
     if (!trimmed) return;
-    commitSlots(applyFill(slots, cells, selectedPage, trimmed, rowCount, pageCount));
+    const next = applyFill(slots, cells, selectedPage, trimmed, rowCount, pageCount);
+    const filled = next.length - slots.length;
+    commitSlots(next);
+    setFillResult(filled === 0 ? 'No empty cells to fill' : `Filled ${filled} cell${filled === 1 ? '' : 's'}`);
   }
 
   const selectedSlot = getMenuSlotFromMap(slotMap, selectedCell.row, selectedCell.column, selectedPage);
@@ -194,10 +198,11 @@ export default function EcoMenusDesigner({ values, setValues }) {
             </div>
             <div className="fill-strip">
               <input
+                aria-label="Fill item ID"
                 className="fill-item-input"
                 placeholder="Fill item (e.g. gray_stained_glass_pane)"
                 value={fillItem}
-                onChange={(event) => setFillItem(event.target.value)}
+                onChange={(event) => { setFillItem(event.target.value); setFillResult(''); }}
               />
               <div className="fill-buttons">
                 <button
@@ -233,6 +238,7 @@ export default function EcoMenusDesigner({ values, setValues }) {
                   Page
                 </button>
               </div>
+              {fillResult ? <span className="fill-result">{fillResult}</span> : null}
             </div>
             <div className="menu-grid">
               {Array.from({ length: rowCount * 9 }, (_, index) => {
