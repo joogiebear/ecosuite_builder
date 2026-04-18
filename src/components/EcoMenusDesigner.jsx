@@ -46,6 +46,10 @@ export default function EcoMenusDesigner({ values, setValues }) {
     }
   }, [rowCount, selectedCell.row]);
 
+  useEffect(() => {
+    setFillResult('');
+  }, [selectedPage, selectedCell]);
+
   function updateValue(key, nextValue) {
     setValues((current) => ({
       ...current,
@@ -238,7 +242,7 @@ export default function EcoMenusDesigner({ values, setValues }) {
                   Page
                 </button>
               </div>
-              {fillResult ? <span className="fill-result">{fillResult}</span> : null}
+              <span className="fill-result" role="status" aria-live="polite">{fillResult}</span>
             </div>
             <div className="menu-grid">
               {Array.from({ length: rowCount * 9 }, (_, index) => {
