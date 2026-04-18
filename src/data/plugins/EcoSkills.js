@@ -1,0 +1,285 @@
+import {
+  buildConditions,
+  buildEffects,
+  buildPlaceholderMap,
+  deriveFileName,
+  linesToArray,
+  numberLinesToArray,
+} from '../../lib/schema.js';
+import {
+  buildLevelKeyedLines,
+  buildSimpleListObjects,
+  buildXpMethods,
+  conditionField,
+  effectField,
+  levelLinesField,
+  xpMethodsField,
+} from '../_helpers.js';
+
+const plugin = {
+    id: 'EcoSkills',
+    name: 'EcoSkills',
+    group: 'Progression',
+    accent: '#7d5338',
+    requires: ['eco'],
+    uses: ['libreforge'],
+    description: 'Create skills with XP curves, reward tiers, GUI metadata, and level-aware effects.',
+    reference: [
+      'EcoSkills mixes progression, reward tables, and XP-gain rules in one file.',
+      'This builder focuses on the core configuration loop instead of every optional display override.',
+    ],
+    templates: [
+      {
+        id: 'skill-config',
+        name: 'Skill',
+        description: 'Generate a skill config for `plugins/EcoSkills/skills/`.',
+        getOutputPath: (values) => `plugins/EcoSkills/skills/${deriveFileName(values, 'skill')}`,
+        initialValues: {
+          id: 'mining',
+          name: 'Mining',
+          description: 'Break blocks to earn XP',
+          guiEnabled: true,
+          guiIcon: 'player_head texture:paste_texture_here',
+          guiRow: 3,
+          guiColumn: 3,
+          guiLore: '',
+          hideBeforeLevelOne: true,
+          useFormula: false,
+          xpFormula: '(2 ^ %level%) * 25',
+          maxLevel: 100,
+          xpRequirements: '50\n125\n200\n300',
+          rewards: [
+            { reward: 'defense', levels: 2, startLevel: '', endLevel: '', every: '' },
+          ],
+          xpMethods: [{ trigger: 'break_block', multiplier: '1', filtersText: 'blocks: stone,diorite,granite' }],
+          levelUpEffects: [],
+          placeholders: [{ id: 'money', value: '%level% * 0.4' }],
+          effectsDescription: [],
+          rewardsDescription: [],
+          levelUpMessages: [],
+          conditions: [],
+        },
+        sections: [
+          {
+            title: 'Skill shell',
+            fields: [
+              { key: 'id', label: 'Skill ID', type: 'text', width: 'half' },
+              { key: 'name', label: 'Skill name', type: 'text', width: 'half' },
+              { key: 'description', label: 'Description', type: 'text', width: 'full' },
+              { key: 'guiEnabled', label: 'Show in GUI', type: 'switch', width: 'half' },
+              { key: 'hideBeforeLevelOne', label: 'Hide before level 1', type: 'switch', width: 'half' },
+              { key: 'guiIcon', label: 'GUI icon', type: 'text', width: 'full' },
+              { key: 'guiLore', label: 'GUI lore', type: 'multiline-list', width: 'full' },
+              { key: 'guiRow', label: 'GUI row', type: 'number', width: 'half' },
+              { key: 'guiColumn', label: 'GUI column', type: 'number', width: 'half' },
+            ],
+          },
+          {
+            title: 'Leveling',
+            fields: [
+              { key: 'useFormula', label: 'Use XP formula instead of list', type: 'switch', width: 'half' },
+              { key: 'xpFormula', label: 'XP formula', type: 'text', width: 'half' },
+              { key: 'maxLevel', label: 'Max level', type: 'number', width: 'half' },
+              { key: 'xpRequirements', label: 'XP requirements (one per line)', type: 'multiline-list', width: 'full' },
+            ],
+          },
+          {
+            title: 'Rewards and XP gain',
+            fields: [
+              {
+                key: 'rewards',
+                label: 'Rewards',
+                type: 'collection',
+                width: 'full',
+                addLabel: 'Add reward',
+                fields: [
+                  { key: 'reward', label: 'Reward ID', type: 'text' },
+                  { key: 'levels', label: 'Levels', type: 'number' },
+                  { key: 'startLevel', label: 'Start level', type: 'number' },
+                  { key: 'endLevel', label: 'End level', type: 'number' },
+                  { key: 'every', label: 'Every', type: 'number' },
+                ],
+              },
+              xpMethodsField('xpMethods', 'XP gain methods'),
+              {
+                key: 'placeholders',
+                label: 'Custom placeholders',
+                type: 'collection',
+                width: 'full',
+                addLabel: 'Add placeholder',
+                fields: [
+                  { key: 'id', label: 'Placeholder ID', type: 'text' },
+                  { key: 'value', label: 'Formula', type: 'text' },
+                ],
+              },
+            ],
+          },
+          {
+            title: 'Per-level descriptions',
+            fields: [
+              levelLinesField('effectsDescription', 'Effects description (by level)'),
+              levelLinesField('rewardsDescription', 'Rewards description (by level)'),
+              levelLinesField('levelUpMessages', 'Level-up messages (by level)'),
+            ],
+          },
+          {
+            title: 'Level and conditions',
+            fields: [effectField('levelUpEffects', 'Level-up effects'), conditionField()],
+          },
+        ],
+        toConfig: (values) => ({
+          name: values.name,
+          description: values.description,
+          gui: {
+            enabled: values.guiEnabled,
+            icon: values.guiIcon,
+            lore: linesToArray(values.guiLore),
+            position: {
+              row: Number(values.guiRow),
+              column: Number(values.guiColumn),
+            },
+          },
+          'hide-before-level-1': values.hideBeforeLevelOne,
+          'xp-formula': values.useFormula ? values.xpFormula : undefined,
+          'max-level': values.useFormula ? Number(values.maxLevel) : undefined,
+          'xp-requirements': values.useFormula ? undefined : numberLinesToArray(values.xpRequirements),
+          rewards: buildSimpleListObjects(values.rewards, 'reward'),
+          'xp-gain-methods': buildXpMethods(values.xpMethods),
+          'level-up-effects': buildEffects(values.levelUpEffects),
+          placeholders: buildPlaceholderMap(values.placeholders),
+          'effects-description': buildLevelKeyedLines(values.effectsDescription),
+          'rewards-description': buildLevelKeyedLines(values.rewardsDescription),
+          'level-up-messages': buildLevelKeyedLines(values.levelUpMessages),
+          conditions: buildConditions(values.conditions),
+        }),
+      },
+      {
+        id: 'stat-config',
+        name: 'Stat',
+        description: 'Generate a stat config for `plugins/EcoSkills/stats/`.',
+        getOutputPath: (values) => `plugins/EcoSkills/stats/${deriveFileName(values, 'stat')}`,
+        initialValues: {
+          id: 'defense',
+          name: '&#x1f6e1;️ Defense',
+          placeholder: '%level% * 2',
+          description: '&8Reduces damage taken by &a%placeholder%%',
+          guiEnabled: true,
+          guiIcon: 'player_head texture:paste_texture_here',
+          guiRow: 2,
+          guiColumn: 3,
+          effects: [],
+          conditions: [],
+        },
+        sections: [
+          {
+            title: 'Stat shell',
+            fields: [
+              { key: 'id', label: 'Stat ID', type: 'text', width: 'half' },
+              { key: 'name', label: 'Display name', type: 'text', width: 'half' },
+              { key: 'placeholder', label: 'Placeholder formula', type: 'text', width: 'half', help: 'Expression using %level%, e.g. %level% * 2' },
+              { key: 'description', label: 'Description', type: 'text', width: 'half', help: 'Use %placeholder% to reference the formula result' },
+            ],
+          },
+          {
+            title: 'GUI',
+            fields: [
+              { key: 'guiEnabled', label: 'Show in GUI', type: 'switch', width: 'half' },
+              { key: 'guiIcon', label: 'GUI icon', type: 'text', width: 'half' },
+              { key: 'guiRow', label: 'GUI row', type: 'number', width: 'half' },
+              { key: 'guiColumn', label: 'GUI column', type: 'number', width: 'half' },
+            ],
+          },
+          {
+            title: 'Logic',
+            fields: [effectField(), conditionField()],
+          },
+        ],
+        toConfig: (values) => ({
+          name: values.name,
+          placeholder: values.placeholder,
+          description: values.description,
+          gui: {
+            enabled: values.guiEnabled,
+            icon: values.guiIcon,
+            position: {
+              row: Number(values.guiRow),
+              column: Number(values.guiColumn),
+            },
+          },
+          effects: buildEffects(values.effects),
+          conditions: buildConditions(values.conditions),
+        }),
+      },
+      {
+        id: 'skill-effect',
+        name: 'Skill effect',
+        description: 'Generate an effect file for `plugins/EcoSkills/effects/`.',
+        getOutputPath: (values) => `plugins/EcoSkills/effects/${deriveFileName(values, 'effect')}`,
+        initialValues: {
+          id: 'midas_touch',
+          name: 'Midas Touch',
+          placeholder: '%level% / 50',
+          description: '&a%placeholder%%&8 chance to get $50 every time you mine a block',
+          effects: [
+            { id: 'give_money', triggers: 'mine_block', argsText: 'chance: %level% / 50\namount: 50', filtersText: '', mutatorsText: '' },
+          ],
+          conditions: [],
+        },
+        sections: [
+          {
+            title: 'Effect shell',
+            fields: [
+              { key: 'id', label: 'Effect ID', type: 'text', width: 'half' },
+              { key: 'name', label: 'Effect name', type: 'text', width: 'half' },
+              { key: 'placeholder', label: 'Placeholder formula', type: 'text', width: 'half', help: 'Expression using %level%.' },
+              { key: 'description', label: 'Description', type: 'text', width: 'full', help: 'Use %placeholder% to reference the formula.' },
+            ],
+          },
+          {
+            title: 'Logic',
+            fields: [effectField(), conditionField()],
+          },
+        ],
+        toConfig: (values) => ({
+          name: values.name,
+          placeholder: values.placeholder,
+          description: values.description,
+          effects: buildEffects(values.effects),
+          conditions: buildConditions(values.conditions),
+        }),
+      },
+      {
+        id: 'magic-type',
+        name: 'Magic type',
+        description: 'Generate a magic type file for `plugins/EcoSkills/magic_types/`.',
+        getOutputPath: (values) => `plugins/EcoSkills/magic_types/${deriveFileName(values, 'magic_type')}`,
+        initialValues: {
+          id: 'mana',
+          name: '&#40ffe6🌊 Mana',
+          regenRate: '0.02 * %ecoskills_mana_limit%',
+          limit: '100 + %ecoskills_wisdom%',
+          joinOnFull: true,
+        },
+        sections: [
+          {
+            title: 'Magic type',
+            fields: [
+              { key: 'id', label: 'Magic type ID', type: 'text', width: 'half' },
+              { key: 'name', label: 'Display name', type: 'text', width: 'half' },
+              { key: 'regenRate', label: 'Regen per second', type: 'text', width: 'full', help: 'Expression, placeholders allowed.' },
+              { key: 'limit', label: 'Maximum', type: 'text', width: 'full', help: 'Expression, placeholders allowed.' },
+              { key: 'joinOnFull', label: 'Join with full magic', type: 'switch', width: 'half' },
+            ],
+          },
+        ],
+        toConfig: (values) => ({
+          name: values.name,
+          'regen-rate': values.regenRate,
+          limit: values.limit,
+          'join-on-full': values.joinOnFull,
+        }),
+      },
+    ],
+  };
+
+export default plugin;

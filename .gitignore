@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+release/
+
+# Electron-builder staging
+out/
+
+# Local tooling / editor state
+.claude/
+.vscode/
+.idea/
+
+# OS junk
+Thumbs.db
+.DS_Store
+desktop.ini
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Env files — never commit
+.env
+.env.*
+!.env.example

@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>EcoSuite Builder — Configure the Auxilor stack without touching YAML</title>
+    <meta
+      name="description"
+      content="A Windows desktop config studio for the Auxilor / EcoSuite Minecraft plugin ecosystem. Visual editors, live YAML preview, validation, and a saved library across 21 plugins."
+    />
+    <meta name="theme-color" content="#f4efe6" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,800;1,9..144,400&family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap"
+    />
+
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <svg class="grain" aria-hidden="true">
+      <filter id="paperNoise">
+        <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" stitchTiles="stitch" />
+        <feColorMatrix values="0 0 0 0 0.10  0 0 0 0 0.09  0 0 0 0 0.08  0 0 0 0.5 0" />
+      </filter>
+      <rect width="100%" height="100%" filter="url(#paperNoise)" />
+    </svg>
+
+    <header class="masthead">
+      <a class="brand" href="#top" aria-label="EcoSuite Builder home">
+        <span class="brand__mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32" fill="none">
+            <path d="M6 26 L16 6 L26 26 Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round" />
+            <path d="M11 22 H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          </svg>
+        </span>
+        <span class="brand__word">
+          <span class="brand__eyebrow">A field studio for</span>
+          <span class="brand__name">EcoSuite Builder</span>
+        </span>
+      </a>
+
+      <nav class="masthead__nav">
+        <a href="#features">Features</a>
+        <a href="#plugins">Plugins</a>
+        <a href="#download">Download</a>
+        <a href="https://github.com/joogiebear/ecosuite_builder" target="_blank" rel="noopener">GitHub ↗</a>
+      </nav>
+    </header>
+
+    <main id="top">
+      <section class="hero">
+        <div class="hero__lead">
+          <p class="kicker">
+            <span class="kicker__rule"></span>
+            <span class="kicker__text">Issue No. 01 &middot; The Auxilor Field Manual</span>
+          </p>
+
+          <h1 class="hero__title">
+            <span class="hero__title-line">Configure the entire</span>
+            <span class="hero__title-line"><em>EcoSuite</em> stack</span>
+            <span class="hero__title-line">without touching YAML.</span>
+          </h1>
+
+          <p class="hero__sub">
+            A Windows desktop studio for the Auxilor plugin ecosystem. Visual editors,
+            live YAML preview, validation, and a saved library — across
+            <strong>21 plugins</strong>, no spaces-vs-tabs surprises.
+          </p>
+
+          <div class="hero__cta" id="download">
+            <a
+              id="downloadBtn"
+              class="btn btn--primary"
+              href="https://github.com/joogiebear/ecosuite_builder/releases/latest"
+              rel="noopener"
+            >
+              <span class="btn__label">Download for Windows</span>
+              <span class="btn__meta">
+                <span id="versionLabel">latest release</span>
+                <span class="dot" aria-hidden="true">·</span>
+                <span id="sizeLabel">.zip</span>
+              </span>
+            </a>
+
+            <a
+              class="btn btn--ghost"
+              href="https://github.com/joogiebear/ecosuite_builder/issues/new?labels=bug&amp;title=%5BBug%5D%20"
+              target="_blank"
+              rel="noopener"
+            >
+              <span class="btn__label">Report a bug</span>
+              <span class="btn__meta">opens GitHub Issues</span>
+            </a>
+          </div>
+
+          <p class="hero__note" id="releaseNote">
+            Pulled live from GitHub Releases. New build? Cut a release — the button updates itself.
+          </p>
+        </div>
+
+        <aside class="hero__panel" aria-label="Sample YAML preview">
+          <div class="panel">
+            <header class="panel__bar">
+              <span class="panel__dot" data-tone="warn"></span>
+              <span class="panel__dot" data-tone="ok"></span>
+              <span class="panel__dot" data-tone="muted"></span>
+              <span class="panel__title">EcoEnchants &middot; bleed.yml</span>
+              <span class="panel__badge">live preview</span>
+            </header>
+            <pre class="panel__code" aria-hidden="true"><code><span class="tk-key">id</span>: <span class="tk-str">bleed</span>
+<span class="tk-key">enabled</span>: <span class="tk-bool">true</span>
+<span class="tk-key">name</span>: <span class="tk-str">"&amp;cBleed"</span>
+<span class="tk-key">levels</span>:
+  <span class="tk-key">1</span>:
+    <span class="tk-key">conditions</span>:
+      - <span class="tk-key">id</span>: <span class="tk-str">attacked_with</span>
+        <span class="tk-key">args</span>:
+          <span class="tk-key">items</span>: [<span class="tk-str">netherite_sword</span>]
+    <span class="tk-key">effects</span>:
+      - <span class="tk-key">id</span>: <span class="tk-str">damage</span>
+        <span class="tk-key">args</span>:
+          <span class="tk-key">amount</span>: <span class="tk-num">2.0</span>
+        <span class="tk-key">triggers</span>: [<span class="tk-str">tick</span>]
+        <span class="tk-key">filters</span>:
+          <span class="tk-key">chance</span>: <span class="tk-num">35</span>
+</code></pre>
+          </div>
+
+          <div class="panel panel--validate">
+            <span class="panel__validate-icon" aria-hidden="true">✓</span>
+            <div>
+              <strong>Schema validated</strong>
+              <p>0 errors · 0 warnings · 14 keys recognised</p>
+            </div>
+          </div>
+        </aside>
+      </section>
+
+      <section class="features" id="features">
+        <header class="section-head">
+          <span class="section-marker">§ I</span>
+          <h2>Built for people who actually run servers.</h2>
+        </header>
+
+        <div class="features__grid">
+          <article class="feature">
+            <span class="feature__num">01</span>
+            <h3>Schema-aware editors</h3>
+            <p>
+              Every plugin knows its own fields, types, and defaults. Hover any input
+              for the docs blurb. Wrong type? You can&rsquo;t enter it.
+            </p>
+          </article>
+
+          <article class="feature">
+            <span class="feature__num">02</span>
+            <h3>Live YAML preview</h3>
+            <p>
+              See the file you&rsquo;re actually shipping &mdash; updated as you type,
+              with the same indentation EcoSuite expects.
+            </p>
+          </article>
+
+          <article class="feature">
+            <span class="feature__num">03</span>
+            <h3>Reusable library</h3>
+            <p>
+              Save effects, conditions, triggers, and whole entries to a personal
+              library. Drop them into any plugin in two clicks.
+            </p>
+          </article>
+
+          <article class="feature">
+            <span class="feature__num">04</span>
+            <h3>Pack import</h3>
+            <p>
+              Drag in an existing config pack and the studio reverse-engineers it &mdash;
+              no clean-room rebuilds.
+            </p>
+          </article>
+
+          <article class="feature">
+            <span class="feature__num">05</span>
+            <h3>EcoMenus designer</h3>
+            <p>
+              Lay out menus with a visual slot grid. Configure pages, masks,
+              fillers, and click handlers without counting characters.
+            </p>
+          </article>
+
+          <article class="feature">
+            <span class="feature__num">06</span>
+            <h3>Cream &amp; coal themes</h3>
+            <p>
+              Light paper for day work, deep ink for late builds. Both theme-aware,
+              both readable for hours.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="plugins" id="plugins">
+        <header class="section-head">
+          <span class="section-marker">§ II</span>
+          <h2>Twenty-one plugins. One studio.</h2>
+        </header>
+
+        <ul class="plugin-grid">
+          <li>eco</li>
+          <li>libreforge</li>
+          <li>Actions</li>
+          <li>Reforges</li>
+          <li>StatTrackers</li>
+          <li>Talismans</li>
+          <li>EcoShop</li>
+          <li>EcoSkills</li>
+          <li>EcoPets</li>
+          <li>EcoQuests</li>
+          <li>EcoScrolls</li>
+          <li>EcoJobs</li>
+          <li>EcoMenus</li>
+          <li>EcoMobs</li>
+          <li>EcoBits</li>
+          <li>EcoCrates</li>
+          <li>EcoEnchants</li>
+          <li>EcoItems</li>
+          <li>Boosters</li>
+          <li>EcoArmor</li>
+          <li>EcoBattlepass</li>
+        </ul>
+
+        <p class="plugins__foot">
+          Schemas drawn from each plugin&rsquo;s own <code>_example.yml</code>.
+          When Auxilor ships a field, the studio learns it.
+        </p>
+      </section>
+
+      <section class="cta-band">
+        <div class="cta-band__inner">
+          <div>
+            <span class="section-marker section-marker--inverse">§ III</span>
+            <h2>Try it on your next config session.</h2>
+            <p>Single download. No installer juggling. Unzip and run.</p>
+          </div>
+          <div class="cta-band__buttons">
+            <a
+              id="downloadBtnAlt"
+              class="btn btn--primary btn--lg"
+              href="https://github.com/joogiebear/ecosuite_builder/releases/latest"
+              rel="noopener"
+            >
+              <span class="btn__label">Download for Windows</span>
+              <span class="btn__meta">
+                <span class="versionLabel">latest release</span>
+              </span>
+            </a>
+            <a
+              class="btn btn--ghost btn--lg btn--ghost-on-dark"
+              href="https://github.com/joogiebear/ecosuite_builder/issues/new?labels=bug&amp;title=%5BBug%5D%20"
+              target="_blank"
+              rel="noopener"
+            >
+              <span class="btn__label">Report a bug</span>
+              <span class="btn__meta">opens GitHub Issues</span>
+            </a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="colophon">
+      <div class="colophon__col">
+        <span class="colophon__label">Colophon</span>
+        <p>
+          Set in <em>Fraunces</em> &amp; <em>JetBrains Mono</em>. Hand-built
+          for Auxilor server admins, by one.
+        </p>
+      </div>
+      <div class="colophon__col">
+        <span class="colophon__label">Issues &amp; feedback</span>
+        <a href="https://github.com/joogiebear/ecosuite_builder/issues" target="_blank" rel="noopener">
+          github.com/joogiebear/ecosuite_builder/issues
+        </a>
+      </div>
+      <div class="colophon__col">
+        <span class="colophon__label">Source</span>
+        <a href="https://github.com/joogiebear/ecosuite_builder" target="_blank" rel="noopener">
+          github.com/joogiebear/ecosuite_builder
+        </a>
+      </div>
+      <div class="colophon__col colophon__col--meta">
+        <span class="colophon__label">This page</span>
+        <span id="footerVersion">EcoSuite Builder · latest</span>
+      </div>
+    </footer>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
