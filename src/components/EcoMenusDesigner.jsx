@@ -1,9 +1,14 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
   MENU_PRESETS,
+  applyFill,
   buildSlotMap,
   createMenuPresetSlot,
+  getBorderCells,
+  getColumnCells,
   getMenuSlotFromMap,
+  getPageCells,
+  getRowCells,
   removeMenuSlot,
   sanitizeMenuSlots,
   stripMinecraftFormatting,
@@ -26,6 +31,7 @@ export default function EcoMenusDesigner({ values, setValues }) {
 
   const [selectedPage, setSelectedPage] = useState(1);
   const [selectedCell, setSelectedCell] = useState({ row: 1, column: 1 });
+  const [fillItem, setFillItem] = useState('');
 
   useEffect(() => {
     if (selectedPage > pageCount) {
@@ -116,6 +122,12 @@ export default function EcoMenusDesigner({ values, setValues }) {
     );
   }
 
+  function handleFill(cells) {
+    const trimmed = fillItem.trim();
+    if (!trimmed) return;
+    commitSlots(applyFill(slots, cells, selectedPage, trimmed, rowCount, pageCount));
+  }
+
   const selectedSlot = getMenuSlotFromMap(slotMap, selectedCell.row, selectedCell.column, selectedPage);
   const activeActionType = selectedSlot?.clickActionType ?? 'none';
 
@@ -179,6 +191,48 @@ export default function EcoMenusDesigner({ values, setValues }) {
                 ))}
               </div>
               <span className="menu-toolbar-note">{slotsOnPage} slots on this page</span>
+            </div>
+            <div className="fill-strip">
+              <input
+                className="fill-item-input"
+                placeholder="Fill item (e.g. gray_stained_glass_pane)"
+                value={fillItem}
+                onChange={(event) => setFillItem(event.target.value)}
+              />
+              <div className="fill-buttons">
+                <button
+                  type="button"
+                  className="fill-button"
+                  disabled={!fillItem.trim()}
+                  onClick={() => handleFill(getBorderCells(rowCount))}
+                >
+                  Border
+                </button>
+                <button
+                  type="button"
+                  className="fill-button"
+                  disabled={!fillItem.trim()}
+                  onClick={() => handleFill(getRowCells(selectedCell.row))}
+                >
+                  Row {selectedCell.row}
+                </button>
+                <button
+                  type="button"
+                  className="fill-button"
+                  disabled={!fillItem.trim()}
+                  onClick={() => handleFill(getColumnCells(selectedCell.column, rowCount))}
+                >
+                  Col {selectedCell.column}
+                </button>
+                <button
+                  type="button"
+                  className="fill-button"
+                  disabled={!fillItem.trim()}
+                  onClick={() => handleFill(getPageCells(rowCount))}
+                >
+                  Page
+                </button>
+              </div>
             </div>
             <div className="menu-grid">
               {Array.from({ length: rowCount * 9 }, (_, index) => {
