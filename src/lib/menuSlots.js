@@ -205,7 +205,7 @@ export function getPageCells(rowCount) {
 }
 
 export function applyFill(slots, cells, page, itemId, rowCount, pageCount) {
-  const map = buildSlotMap(slots);
+  let map = buildSlotMap(slots);
   let result = slots;
   for (const { row, column } of cells) {
     if (!getMenuSlotFromMap(map, row, column, page)) {
@@ -215,6 +215,7 @@ export function applyFill(slots, cells, page, itemId, rowCount, pageCount) {
         rowCount,
         pageCount,
       );
+      map = buildSlotMap(result);
     }
   }
   return result;
