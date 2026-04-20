@@ -154,10 +154,10 @@ export default function EcoMenusDesigner({ values, setValues }) {
           <h3>Menu Shell</h3>
         </div>
         <div className="field-grid">
-          <FieldShell field={{ label: 'Menu ID', width: 'half' }}>
+          <FieldShell field={{ label: 'Menu ID', width: 'half' }} error={!values.id?.trim() ? 'Menu ID is required.' : null}>
             <input value={values.id ?? ''} onChange={(event) => updateValue('id', event.target.value)} />
           </FieldShell>
-          <FieldShell field={{ label: 'Title', width: 'half' }}>
+          <FieldShell field={{ label: 'Title', width: 'half' }} error={!values.title?.trim() ? 'Title is required.' : null}>
             <input value={values.title ?? ''} onChange={(event) => updateValue('title', event.target.value)} />
           </FieldShell>
           <FieldShell field={{ label: 'Command', width: 'half' }}>
@@ -319,7 +319,10 @@ export default function EcoMenusDesigner({ values, setValues }) {
                     <option value="send_message">send_message</option>
                   </select>
                 </FieldShell>
-                <FieldShell field={{ label: 'Action value', width: 'half' }}>
+                <FieldShell
+                  field={{ label: 'Action value', width: 'half' }}
+                  error={['run_command', 'open_menu', 'send_message'].includes(activeActionType) && !selectedSlot.clickActionValue?.trim() ? 'Action value is required.' : null}
+                >
                   <input
                     value={selectedSlot.clickActionValue ?? ''}
                     onChange={(event) => updateSelectedSlot('clickActionValue', event.target.value)}

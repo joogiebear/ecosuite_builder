@@ -3,7 +3,7 @@ import { dump } from 'js-yaml';
 import { getPluginDocsUrl, getPluginSourceUrl, pluginCatalog } from './data/catalog.js';
 import { cleanObject, cloneValue } from './lib/schema.js';
 import { generateValues } from './lib/generate.js';
-import { collectValidationIssues } from './lib/validate.js';
+import { collectValidationIssues, getFieldError } from './lib/validate.js';
 import CommandPalette from './components/CommandPalette.jsx';
 import LibraryPanel from './components/LibraryPanel.jsx';
 import PackImportModal from './components/PackImportModal.jsx';
@@ -556,7 +556,7 @@ export default function App() {
                     </div>
                     <div className="field-grid">
                       {section.fields.map((field) => (
-                        <FieldShell field={field} key={field.key}>
+                        <FieldShell field={field} key={field.key} error={getFieldError(field.key, values[field.key])}>
                           <FieldRenderer
                             field={field}
                             value={values[field.key]}

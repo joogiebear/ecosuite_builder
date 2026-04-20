@@ -69,6 +69,16 @@ function collectFieldKeysByType(template, type) {
   return keys;
 }
 
+const REQUIRED_FIELD_KEYS = new Set(['id', 'title', 'name', 'displayName']);
+const REQUIRED_FIELD_LABELS = { id: 'ID', title: 'Title', name: 'Name', displayName: 'Display name' };
+
+export function getFieldError(key, value) {
+  if (REQUIRED_FIELD_KEYS.has(key) && !hasText(value)) {
+    return `${REQUIRED_FIELD_LABELS[key]} is required.`;
+  }
+  return null;
+}
+
 export function collectValidationIssues(plugin, template, values, library) {
   const issues = [];
 
