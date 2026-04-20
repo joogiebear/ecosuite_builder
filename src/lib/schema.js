@@ -99,10 +99,10 @@ export function parseKeyValueText(value) {
   return output;
 }
 
-export function cleanObject(value) {
+export function cleanObject(value, { inArray = false } = {}) {
   if (Array.isArray(value)) {
     const cleaned = value
-      .map((entry) => cleanObject(entry))
+      .map((entry) => cleanObject(entry, { inArray: true }))
       .filter((entry) => entry !== undefined);
 
     return cleaned.length > 0 ? cleaned : undefined;
@@ -121,6 +121,7 @@ export function cleanObject(value) {
   }
 
   if (typeof value === 'string') {
+    if (inArray) return value;
     const trimmed = value.trim();
     return trimmed === '' ? undefined : value;
   }
