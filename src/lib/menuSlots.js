@@ -208,6 +208,7 @@ export function applyFill(slots, cells, page, itemId, rowCount, pageCount) {
   let map = buildSlotMap(slots);
   let result = slots;
   for (const { row, column } of cells) {
+    if (row < 1 || row > rowCount || column < 1 || column > 9 || page < 1 || page > pageCount) continue;
     if (!getMenuSlotFromMap(map, row, column, page)) {
       result = upsertMenuSlot(
         result,
