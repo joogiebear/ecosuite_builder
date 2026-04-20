@@ -69,8 +69,8 @@ function collectFieldKeysByType(template, type) {
   return keys;
 }
 
-const REQUIRED_FIELD_KEYS = new Set(['id', 'title', 'name', 'displayName']);
-const REQUIRED_FIELD_LABELS = { id: 'ID', title: 'Title', name: 'Name', displayName: 'Display name' };
+const REQUIRED_FIELD_KEYS = new Set(['id', 'title', 'name', 'displayName', 'baseItem']);
+const REQUIRED_FIELD_LABELS = { id: 'ID', title: 'Title', name: 'Name', displayName: 'Display name', baseItem: 'Base item' };
 
 export function getFieldError(key, value) {
   if (REQUIRED_FIELD_KEYS.has(key) && !hasText(value)) {

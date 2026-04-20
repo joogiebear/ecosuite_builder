@@ -2,6 +2,7 @@ import CollectionEditor, { normalizeOption } from './CollectionEditor.jsx';
 import ConditionsEditor from './ConditionsEditor.jsx';
 import EffectsEditor from './EffectsEditor.jsx';
 import MinecraftText from './MinecraftText.jsx';
+import PreviewPatternEditor from './PreviewPatternEditor.jsx';
 import RecipeGrid from './RecipeGrid.jsx';
 
 const MC_FORMAT_RE = /&[0-9a-frklmno]|&#[0-9a-fA-F]{6}|<gradient:|<\/gradient:|<g:|<\/g:|§[0-9a-frklmno]/i;
@@ -76,6 +77,10 @@ export default function FieldRenderer({ field, value, onChange }) {
 
   if (field.type === 'recipe-grid') {
     return <RecipeGrid value={value} onChange={onChange} />;
+  }
+
+  if (field.type === 'preview-pattern') {
+    return <PreviewPatternEditor value={value} onChange={onChange} />;
   }
 
   if (field.type === 'textarea' || field.type === 'multiline-list') {

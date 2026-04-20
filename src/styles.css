@@ -587,6 +587,36 @@ body::before {
   font-style: italic;
   line-height: 1.4;
 }
+.preview-pattern-editor { display: flex; flex-direction: column; gap: 3px; }
+.preview-pattern-row { display: flex; gap: 3px; }
+.pattern-cell {
+  all: unset;
+  width: 30px;
+  height: 30px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  text-align: center;
+  cursor: pointer;
+  line-height: 30px;
+  transition: filter 0.1s;
+}
+.pattern-cell:hover { filter: brightness(1.2); }
+.pattern-cell.v0 { background: color-mix(in srgb, var(--accent) 20%, transparent); color: var(--accent); }
+.pattern-cell.v1 { background: color-mix(in srgb, var(--muted) 18%, transparent); color: var(--fg); }
+.pattern-cell.v2 { background: color-mix(in srgb, var(--muted) 35%, transparent); color: var(--fg); }
+.pattern-legend { display: flex; gap: 10px; align-items: center; margin: 4px 0 0; flex-wrap: wrap; }
+.pattern-legend-item {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+.pattern-legend-item.v0 { background: color-mix(in srgb, var(--accent) 20%, transparent); color: var(--accent); }
+.pattern-legend-item.v1 { background: color-mix(in srgb, var(--muted) 18%, transparent); color: var(--fg); }
+.pattern-legend-item.v2 { background: color-mix(in srgb, var(--muted) 35%, transparent); color: var(--fg); }
+.pattern-legend-note { font-size: 10px; color: var(--muted); font-style: italic; }
+
 .recipe-grid-input {
   display: grid;
   grid-template-columns: repeat(3, 1fr);

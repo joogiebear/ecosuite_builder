@@ -83,7 +83,7 @@ const plugin = {
             fields: [
               { key: 'previewMask1', label: 'Mask item 1', type: 'text', width: 'half' },
               { key: 'previewMask2', label: 'Mask item 2', type: 'text', width: 'half' },
-              { key: 'previewPattern', label: 'Mask pattern (6×9)', type: 'multiline-list', width: 'full', help: 'Six rows of nine digits each. Digit references the mask items above (1, 2). Use 0 for empty slots.' },
+              { key: 'previewPattern', label: 'Mask pattern', type: 'preview-pattern', width: 'full' },
               { key: 'forwardsArrowItem', label: 'Next-page arrow item', type: 'text', width: 'full' },
               { key: 'forwardsArrowRow', label: 'Next arrow row', type: 'number', width: 'half' },
               { key: 'forwardsArrowColumn', label: 'Next arrow column', type: 'number', width: 'half' },
