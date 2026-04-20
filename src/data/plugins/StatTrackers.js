@@ -57,7 +57,7 @@ const plugin = {
               { key: 'trackerName', label: 'Tracker name', type: 'text', width: 'half' },
               { key: 'trackerLore', label: 'Tracker lore', type: 'multiline-list', width: 'full' },
               { key: 'craftable', label: 'Craftable', type: 'switch', width: 'half' },
-              { key: 'recipe', label: 'Recipe grid', type: 'multiline-list', width: 'half', preserveEmpty: true },
+              { key: 'recipe', label: 'Recipe grid', type: 'recipe-grid', width: 'full', preserveEmpty: true },
             ],
           },
         ],

@@ -63,7 +63,7 @@ const plugin = {
               { key: 'shapeless', label: 'Shapeless recipe', type: 'switch', width: 'half' },
               { key: 'recipeGiveAmount', label: 'Give amount per craft', type: 'number', width: 'half' },
               { key: 'craftingPermission', label: 'Crafting permission', type: 'text', width: 'full' },
-              { key: 'recipe', label: 'Recipe grid', type: 'multiline-list', width: 'full', preserveEmpty: true, help: 'Use nine lines. Empty lines are preserved so shaped recipes stay aligned.' },
+              { key: 'recipe', label: 'Recipe grid', type: 'recipe-grid', width: 'full', preserveEmpty: true },
             ],
           },
           {
@@ -140,7 +140,7 @@ const plugin = {
               { key: 'result', label: 'Result item', type: 'text', width: 'half', help: 'Item lookup string, can include a count suffix like "diamond_sword 1".' },
               { key: 'permission', label: 'Crafting permission', type: 'text', width: 'full' },
               { key: 'shapeless', label: 'Shapeless', type: 'switch', width: 'half' },
-              { key: 'recipe', label: 'Recipe grid (9 lines)', type: 'multiline-list', width: 'full', preserveEmpty: true },
+              { key: 'recipe', label: 'Recipe grid', type: 'recipe-grid', width: 'full', preserveEmpty: true },
             ],
           },
         ],

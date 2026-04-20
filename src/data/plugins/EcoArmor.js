@@ -138,7 +138,7 @@ const plugin = {
               { key: 'shardCraftable', label: 'Shard craftable', type: 'switch', width: 'half' },
               { key: 'shardShapeless', label: 'Shapeless recipe', type: 'switch', width: 'half' },
               { key: 'shardRecipePermission', label: 'Shard recipe permission', type: 'text', width: 'full' },
-              { key: 'shardRecipe', label: 'Shard recipe (9 lines)', type: 'multiline-list', width: 'full', help: 'One ingredient per line, 9 lines for a full crafting grid.' },
+              { key: 'shardRecipe', label: 'Shard recipe', type: 'recipe-grid', width: 'full' },
             ],
           },
         ],
@@ -257,7 +257,7 @@ const plugin = {
               { key: 'crystalShapeless', label: 'Shapeless', type: 'switch', width: 'half' },
               { key: 'crystalPermission', label: 'Crafting permission', type: 'text', width: 'full' },
               { key: 'crystalGiveAmount', label: 'Give amount', type: 'number', width: 'half' },
-              { key: 'crystalRecipe', label: 'Crystal recipe (9 lines)', type: 'multiline-list', width: 'full', preserveEmpty: true },
+              { key: 'crystalRecipe', label: 'Crystal recipe', type: 'recipe-grid', width: 'full', preserveEmpty: true },
             ],
           },
           {

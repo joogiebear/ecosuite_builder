@@ -587,6 +587,17 @@ body::before {
   font-style: italic;
   line-height: 1.4;
 }
+.recipe-grid-input {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+}
+.recipe-grid-input input {
+  text-align: center;
+  font-size: 11px;
+  padding: 5px 4px;
+}
+
 .field-error {
   font-size: 11.5px;
   color: var(--danger, #e05252);

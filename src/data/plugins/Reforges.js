@@ -65,7 +65,7 @@ const plugin = {
               { key: 'stoneCraftable', label: 'Stone craftable', type: 'switch', width: 'half' },
               { key: 'stoneShapeless', label: 'Shapeless recipe', type: 'switch', width: 'half' },
               { key: 'stoneRecipePermission', label: 'Recipe permission', type: 'text', width: 'half', placeholder: 'ecoitems.reforge_stone_recipe' },
-              { key: 'stoneRecipe', label: 'Recipe grid (9 lines)', type: 'multiline-list', width: 'full', help: 'One ingredient per line, 9 lines for a full crafting grid.' },
+              { key: 'stoneRecipe', label: 'Recipe grid', type: 'recipe-grid', width: 'full' },
               { key: 'priceValue', label: 'Price override', type: 'number', width: 'half' },
               { key: 'priceType', label: 'Price type', type: 'text', width: 'half' },
               { key: 'priceDisplay', label: 'Price display', type: 'text', width: 'full' },

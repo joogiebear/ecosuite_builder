@@ -55,7 +55,7 @@ const plugin = {
               { key: 'craftable', label: 'Craftable', type: 'switch', width: 'half' },
               { key: 'shapeless', label: 'Shapeless recipe', type: 'switch', width: 'half' },
               { key: 'recipePermission', label: 'Recipe permission', type: 'text', width: 'full' },
-              { key: 'recipe', label: 'Recipe grid', type: 'multiline-list', width: 'full', preserveEmpty: true },
+              { key: 'recipe', label: 'Recipe grid', type: 'recipe-grid', width: 'full', preserveEmpty: true },
               effectField(),
               conditionField(),
             ],
