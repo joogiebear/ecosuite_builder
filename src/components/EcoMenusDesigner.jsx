@@ -301,7 +301,7 @@ export default function EcoMenusDesigner({ values, setValues }) {
 
             {selectedSlot ? (
               <div className="field-grid">
-                <FieldShell field={{ label: 'Item', width: 'full' }}>
+                <FieldShell field={{ label: 'Item', width: 'full' }} error={!selectedSlot.item?.trim() ? 'Item is required.' : null}>
                   <input value={selectedSlot.item ?? ''} onChange={(event) => updateSelectedSlot('item', event.target.value)} />
                 </FieldShell>
                 <FieldShell field={{ label: 'Name', width: 'full' }}>
