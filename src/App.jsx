@@ -194,8 +194,6 @@ export default function App() {
       .sort((left, right) => left.name.localeCompare(right.name, undefined, { sensitivity: 'base' }));
   }, [query]);
 
-  const dependencySummary = selectedPlugin.requires.length ? selectedPlugin.requires.join(', ') : 'None';
-  const integrationSummary = selectedPlugin.uses.length ? selectedPlugin.uses.join(', ') : 'Standalone';
   const editorMode =
     selectedPlugin.id === 'EcoMenus' && activeTemplate.id === 'menu-config'
       ? 'Visual menu designer'
@@ -405,44 +403,33 @@ export default function App() {
       }}
     >
       <aside className="sidebar">
-        <div className="brand-card">
-          <p className="eyebrow">Builder</p>
-          <div className="brand-header">
-            <h1>EcoSuite Builder</h1>
-            <button
-              type="button"
-              className={`theme-toggle ${theme}`}
-              onClick={() => setTheme((current) => (current === 'dark' ? 'light' : 'dark'))}
-              aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
-              title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
-            >
-              <span className="theme-toggle-track">
-                <span className="theme-toggle-side sun">
-                  <ThemeGlyph kind="sun" />
-                </span>
-                <span className="theme-toggle-side moon">
-                  <ThemeGlyph kind="moon" />
-                </span>
-                <span className="theme-toggle-thumb">
-                  <ThemeGlyph kind={theme === 'dark' ? 'moon' : 'sun'} />
-                </span>
+        <div className="sidebar-header">
+          <div className="sidebar-logo">E</div>
+          <span className="sidebar-title">EcoSuite</span>
+          <button
+            type="button"
+            className={`theme-toggle ${theme}`}
+            onClick={() => setTheme((current) => (current === 'dark' ? 'light' : 'dark'))}
+            aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+            title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+          >
+            <span className="theme-toggle-track">
+              <span className="theme-toggle-side sun">
+                <ThemeGlyph kind="sun" />
               </span>
-            </button>
-          </div>
+              <span className="theme-toggle-side moon">
+                <ThemeGlyph kind="moon" />
+              </span>
+              <span className="theme-toggle-thumb">
+                <ThemeGlyph kind={theme === 'dark' ? 'moon' : 'sun'} />
+              </span>
+            </span>
+          </button>
         </div>
 
         <label className="search-shell">
           <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search plugins…" />
         </label>
-
-        <button
-          type="button"
-          className="ghost-button palette-trigger"
-          onClick={() => setPaletteOpen(true)}
-          title="Search templates (Ctrl+K)"
-        >
-          Find template… <span className="palette-trigger-kbd">Ctrl K</span>
-        </button>
 
         <div className="sidebar-caption">
           <span>Plugins</span>
@@ -450,7 +437,7 @@ export default function App() {
         </div>
 
         <div className="plugin-list sidebar-plugin-list">
-          {filteredPlugins.length === 0 ? <div className="empty-state compact">No plugins match your current search.</div> : null}
+          {filteredPlugins.length === 0 ? <div className="empty-state compact">No plugins match.</div> : null}
           {filteredPlugins.map((plugin) => (
             <button
               key={plugin.id}
@@ -475,67 +462,47 @@ export default function App() {
 
       <main className="main-panel">
         <section className="workspace-header">
-          <div className="workspace-header-main">
-            <h2>{selectedPlugin.name}</h2>
-            <div className="workspace-meta-row">
-              <span className="meta-chip">{selectedPlugin.group}</span>
-              {selectedPlugin.requires.length ? (
-                <span className="meta-chip">requires {dependencySummary}</span>
-              ) : null}
-              {selectedPlugin.uses.length ? (
-                <span className="meta-chip subtle">uses {integrationSummary}</span>
-              ) : null}
-              {getPluginDocsUrl(selectedPlugin.id) ? (
-                <button
-                  type="button"
-                  className="meta-chip link"
-                  onClick={() => openExternalUrl(getPluginDocsUrl(selectedPlugin.id))}
+          <span className="toolbar-plugin-name">{selectedPlugin.name}</span>
+          <span className="toolbar-tag tag-template">{activeTemplate.name}</span>
+          {errorCount > 0 ? (
+            <span className="toolbar-tag tag-error">⚠ {errorCount} {errorCount === 1 ? 'error' : 'errors'}</span>
+          ) : null}
+          {warningCount > 0 && errorCount === 0 ? (
+            <span className="toolbar-tag tag-warn">{warningCount} {warningCount === 1 ? 'warning' : 'warnings'}</span>
+          ) : null}
+          <div className="toolbar-spacer" />
+          <div className="toolbar-actions">
+            {selectedPlugin.templates.length > 1 ? (
+              <>
+                <select
+                  className="toolbar-template-select"
+                  value={activeTemplate.id}
+                  onChange={(event) => setSelectedTemplateId(event.target.value)}
                 >
-                  Docs ↗
-                </button>
-              ) : null}
-              {getPluginSourceUrl(selectedPlugin.id) ? (
-                <button
-                  type="button"
-                  className="meta-chip link subtle"
-                  onClick={() => openExternalUrl(getPluginSourceUrl(selectedPlugin.id))}
-                >
-                  Source ↗
-                </button>
-              ) : null}
-            </div>
-          </div>
-          <div className="workspace-header-actions">
-            <label className="field compact template-picker">
-              <span className="field-label">Template</span>
-              <select value={activeTemplate.id} onChange={(event) => setSelectedTemplateId(event.target.value)}>
-                {selectedPlugin.templates.map((template) => (
-                  <option key={template.id} value={template.id}>
-                    {template.name}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <div className="header-actions-row">
-              <button type="button" className="secondary-button" onClick={() => setImportOpen(true)}>
-                Import YAML
-              </button>
-              <button type="button" className="secondary-button" onClick={handleGenerate}>
-                Generate
-              </button>
-              <button type="button" className="secondary-button" onClick={resetTemplate}>
-                Reset
-              </button>
-              <button type="button" className="secondary-button" onClick={saveToLibrary}>
-                Save to library
-              </button>
-              <button type="button" className="ghost-button" onClick={handleCopy}>
-                Copy YAML
-              </button>
-              <button type="button" className="primary-button" onClick={handleExport}>
-                Export
-              </button>
-            </div>
+                  {selectedPlugin.templates.map((template) => (
+                    <option key={template.id} value={template.id}>{template.name}</option>
+                  ))}
+                </select>
+                <div className="toolbar-sep" />
+              </>
+            ) : null}
+            {getPluginDocsUrl(selectedPlugin.id) ? (
+              <button type="button" className="ghost-button" onClick={() => openExternalUrl(getPluginDocsUrl(selectedPlugin.id))}>Docs ↗</button>
+            ) : null}
+            {getPluginSourceUrl(selectedPlugin.id) ? (
+              <button type="button" className="ghost-button" onClick={() => openExternalUrl(getPluginSourceUrl(selectedPlugin.id))}>Source ↗</button>
+            ) : null}
+            {(getPluginDocsUrl(selectedPlugin.id) || getPluginSourceUrl(selectedPlugin.id)) ? (
+              <div className="toolbar-sep" />
+            ) : null}
+            <button type="button" className="secondary-button" onClick={() => setImportOpen(true)}>Import YAML</button>
+            <button type="button" className="secondary-button" onClick={handleGenerate}>Generate</button>
+            <button type="button" className="secondary-button" onClick={resetTemplate}>Reset</button>
+            <div className="toolbar-sep" />
+            <button type="button" className="ghost-button" onClick={handleCopy}>Copy</button>
+            <button type="button" className="ghost-button" onClick={handleExport}>Export</button>
+            <div className="toolbar-sep" />
+            <button type="button" className="primary-button" onClick={saveToLibrary}>Save</button>
           </div>
         </section>
 
@@ -625,6 +592,26 @@ export default function App() {
         </section>
       </main>
       {status ? <div className="toast">{status}</div> : null}
+      <div className="status-bar">
+        <div className="status-left">
+          <div className={`status-indicator ${errorCount > 0 ? 'error' : warningCount > 0 ? 'warn' : 'ok'}`} />
+          <span className="status-crumb">
+            <span>{selectedPlugin.name}</span>
+            <span className="sep">·</span>
+            <span>{activeTemplate.name}</span>
+            {errorCount > 0 ? (
+              <span className="status-error-pill">{errorCount} {errorCount === 1 ? 'error' : 'errors'}</span>
+            ) : null}
+          </span>
+          {status ? (
+            <>
+              <span className="status-sep-pipe">|</span>
+              <span className="status-msg">{status}</span>
+            </>
+          ) : null}
+        </div>
+        <div className="status-right">EcoSuite Builder v1.2.0</div>
+      </div>
       <CommandPalette
         plugins={pluginCatalog}
         open={paletteOpen}
