@@ -9,7 +9,7 @@ import LibraryPanel from './components/LibraryPanel.jsx';
 import PackImportModal from './components/PackImportModal.jsx';
 import YamlImportModal from './components/YamlImportModal.jsx';
 import { idFieldFor } from './lib/knownIds.js';
-import { listLibrary, removeEntry, upsertEntry } from './lib/library.js';
+import { listLibrary, loadLibrary, removeEntry, upsertEntry, upsertEntries } from './lib/library.js';
 import { readStored, readStoredJson, writeStored, writeStoredJson } from './lib/util.js';
 import EcoMenusDesigner from './components/EcoMenusDesigner.jsx';
 import FieldRenderer from './components/FieldRenderer.jsx';
@@ -104,6 +104,25 @@ export default function App() {
       setSelectedTemplateId(selectedPlugin.templates[0].id);
     }
   }, [selectedPlugin, selectedTemplateId]);
+
+  useEffect(() => {
+    let cancelled = false;
+    loadLibrary()
+      .then((entries) => {
+        if (!cancelled) {
+          setLibrary(entries);
+        }
+      })
+      .catch((error) => {
+        if (!cancelled) {
+          setStatus(`Library load failed: ${error?.message ?? 'unknown error'}`);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     const plugin = pluginCatalog.find((entry) => entry.id === selectedPluginId);
@@ -239,20 +258,24 @@ export default function App() {
     setStatus('Template reset to starter values.');
   }
 
-  function saveToLibrary() {
+  async function saveToLibrary() {
     const idField = idFieldFor(selectedPlugin.id, activeTemplate.id);
     const primary = values[idField];
     const entryName =
       (typeof primary === 'string' && primary.trim()) || activeTemplate.id;
-    upsertEntry({
-      pluginId: selectedPlugin.id,
-      templateId: activeTemplate.id,
-      name: entryName,
-      values: cloneValue(values),
-      outputPath,
-    });
-    setLibrary(listLibrary());
-    setStatus(`Saved "${entryName}" to library.`);
+    try {
+      const entries = await upsertEntry({
+        pluginId: selectedPlugin.id,
+        templateId: activeTemplate.id,
+        name: entryName,
+        values: cloneValue(values),
+        outputPath,
+      });
+      setLibrary(entries);
+      setStatus(`Saved "${entryName}" to library.`);
+    } catch (error) {
+      setStatus(`Save failed: ${error?.message ?? 'unknown error'}`);
+    }
   }
 
   function loadFromLibrary(entry) {
@@ -262,35 +285,49 @@ export default function App() {
     setStatus(`Loaded "${entry.name}".`);
   }
 
-  function removeFromLibrary(entryId) {
-    removeEntry(entryId);
-    setLibrary(listLibrary());
+  async function removeFromLibrary(entryId) {
+    try {
+      setLibrary(await removeEntry(entryId));
+    } catch (error) {
+      setStatus(`Remove failed: ${error?.message ?? 'unknown error'}`);
+    }
   }
 
-  function commitPackImport(matches) {
+  async function commitPackImport(matches) {
     let imported = 0;
+    const entriesToSave = [];
     for (const match of matches) {
       if (!match?.values) continue;
       const idField = idFieldFor(match.plugin.id, match.template.id);
+      const nextValues = cloneValue(match.values);
+      if (!match.matched?.includes(idField) && typeof match.name === 'string' && match.name.trim()) {
+        nextValues[idField] = match.name.trim();
+      }
       const name =
-        (typeof match.values[idField] === 'string' && match.values[idField].trim()) ||
+        (typeof nextValues[idField] === 'string' && nextValues[idField].trim()) ||
         match.name ||
         match.template.id;
-      const outputPath = match.template.getOutputPath?.(match.values) ?? `plugins/${match.plugin.id}/${name}.yml`;
-      upsertEntry({
+      const outputPath = match.template.getOutputPath?.(nextValues) ?? `plugins/${match.plugin.id}/${name}.yml`;
+      entriesToSave.push({
         pluginId: match.plugin.id,
         templateId: match.template.id,
         name,
-        values: cloneValue(match.values),
+        values: nextValues,
         outputPath,
       });
       imported += 1;
     }
-    setLibrary(listLibrary());
-    setStatus(`Imported ${imported} file${imported === 1 ? '' : 's'} into the library.`);
+
+    try {
+      setLibrary(await upsertEntries(entriesToSave));
+      setStatus(`Imported ${imported} file${imported === 1 ? '' : 's'} into the library.`);
+    } catch (error) {
+      setStatus(`Import failed: ${error?.message ?? 'unknown error'}`);
+      throw error;
+    }
   }
 
-  function duplicateLibraryEntry(entry) {
+  async function duplicateLibraryEntry(entry) {
     const suggested = `${entry.name}_copy`;
     const nextName = window.prompt(`New name for the duplicate of "${entry.name}"?`, suggested);
     if (!nextName || !nextName.trim()) return;
@@ -299,15 +336,18 @@ export default function App() {
     if (field in nextValues) {
       nextValues[field] = nextName.trim();
     }
-    upsertEntry({
-      pluginId: entry.pluginId,
-      templateId: entry.templateId,
-      name: nextName.trim(),
-      values: nextValues,
-      outputPath: entry.outputPath,
-    });
-    setLibrary(listLibrary());
-    setStatus(`Duplicated as "${nextName.trim()}".`);
+    try {
+      setLibrary(await upsertEntry({
+        pluginId: entry.pluginId,
+        templateId: entry.templateId,
+        name: nextName.trim(),
+        values: nextValues,
+        outputPath: entry.outputPath,
+      }));
+      setStatus(`Duplicated as "${nextName.trim()}".`);
+    } catch (error) {
+      setStatus(`Duplicate failed: ${error?.message ?? 'unknown error'}`);
+    }
   }
 
   async function exportPack() {
@@ -610,7 +650,7 @@ export default function App() {
             </>
           ) : null}
         </div>
-        <div className="status-right">EcoSuite Builder v1.2.0</div>
+        <div className="status-right">EcoSuite Builder v1.3.0</div>
       </div>
       <CommandPalette
         plugins={pluginCatalog}

@@ -9,6 +9,7 @@ const ALLOWED_EXTERNAL_HOSTS = new Set([
 ]);
 
 const shouldLoadDist = app.isPackaged || process.argv.includes('--dist');
+const LIBRARY_FILE_NAME = 'library.json';
 
 const PROD_CSP = [
   "default-src 'self'",
@@ -55,6 +56,79 @@ function createWindow() {
   }
 
   window.loadURL('http://127.0.0.1:5173');
+}
+
+function resolveExportPath(root, candidatePath) {
+  const rawPath = String(candidatePath ?? '').trim();
+  if (!rawPath || rawPath.includes('\0')) {
+    return { error: 'Missing path.' };
+  }
+
+  if (path.isAbsolute(rawPath) || path.win32.isAbsolute(rawPath) || path.posix.isAbsolute(rawPath)) {
+    return { error: 'Absolute paths are not allowed.' };
+  }
+
+  const parts = rawPath
+    .replace(/\\/g, '/')
+    .split('/')
+    .filter((part) => part && part !== '.');
+
+  if (parts.length === 0) {
+    return { error: 'Missing path.' };
+  }
+
+  if (parts.some((part) => part.includes(':'))) {
+    return { error: 'Drive-qualified paths are not allowed.' };
+  }
+
+  if (parts.some((part) => part === '..')) {
+    return { error: 'Parent directory traversal is not allowed.' };
+  }
+
+  const rootPath = path.resolve(root);
+  const absolute = path.resolve(rootPath, ...parts);
+  const relativeToRoot = path.relative(rootPath, absolute);
+
+  if (relativeToRoot.startsWith('..') || path.isAbsolute(relativeToRoot)) {
+    return { error: 'Path escapes the export folder.' };
+  }
+
+  return { absolute, relativePath: parts.join('/') };
+}
+
+function getLibraryPath() {
+  return path.join(app.getPath('userData'), LIBRARY_FILE_NAME);
+}
+
+function normalizeLibraryEntries(value) {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value.filter((entry) => entry && typeof entry === 'object' && !Array.isArray(entry));
+}
+
+async function readLibraryEntries() {
+  const filePath = getLibraryPath();
+  try {
+    const raw = await fs.readFile(filePath, 'utf8');
+    return { entries: normalizeLibraryEntries(JSON.parse(raw)), exists: true };
+  } catch (err) {
+    if (err?.code === 'ENOENT') {
+      return { entries: [], exists: false };
+    }
+    throw err;
+  }
+}
+
+async function writeLibraryEntries(entries) {
+  const filePath = getLibraryPath();
+  const normalized = normalizeLibraryEntries(entries);
+  await fs.mkdir(path.dirname(filePath), { recursive: true });
+  const temporaryPath = `${filePath}.tmp`;
+  await fs.writeFile(temporaryPath, `${JSON.stringify(normalized, null, 2)}\n`, 'utf8');
+  await fs.rename(temporaryPath, filePath);
+  return normalized;
 }
 
 app.whenReady().then(() => {
@@ -127,6 +201,12 @@ app.whenReady().then(() => {
     return { canceled: false, directory: root, files, skipped };
   });
 
+  ipcMain.handle('library-read', async () => readLibraryEntries());
+
+  ipcMain.handle('library-write', async (_event, entries) => ({
+    entries: await writeLibraryEntries(entries),
+  }));
+
   ipcMain.handle('export-pack', async (_event, payload) => {
     const { files } = payload ?? {};
     if (!Array.isArray(files) || files.length === 0) {
@@ -148,18 +228,17 @@ app.whenReady().then(() => {
 
     await Promise.all(
       files.map(async (file) => {
-        const relativePath = String(file.path ?? '').replace(/^\/+/, '');
-        if (!relativePath) {
-          failed.push({ path: file.path, reason: 'Missing path.' });
+        const resolved = resolveExportPath(root, file.path);
+        if (resolved.error) {
+          failed.push({ path: file.path, reason: resolved.error });
           return;
         }
-        const absolute = path.join(root, relativePath);
         try {
-          await fs.mkdir(path.dirname(absolute), { recursive: true });
-          await fs.writeFile(absolute, String(file.content ?? ''), 'utf8');
-          written.push(absolute);
+          await fs.mkdir(path.dirname(resolved.absolute), { recursive: true });
+          await fs.writeFile(resolved.absolute, String(file.content ?? ''), 'utf8');
+          written.push(resolved.absolute);
         } catch (err) {
-          failed.push({ path: relativePath, reason: err?.message ?? 'unknown error' });
+          failed.push({ path: resolved.relativePath, reason: err?.message ?? 'unknown error' });
         }
       }),
     );

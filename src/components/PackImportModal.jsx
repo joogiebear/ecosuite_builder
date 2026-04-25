@@ -74,12 +74,19 @@ export default function PackImportModal({ open, onClose, onCommit }) {
     }
   }
 
-  function apply() {
+  async function apply() {
     if (!scan) return;
-    onCommit(scan.matches);
-    setScan(null);
+    setBusy(true);
     setStatus('');
-    onClose();
+    try {
+      await onCommit(scan.matches);
+      setScan(null);
+      onClose();
+    } catch (err) {
+      setStatus(`Import failed: ${err?.message ?? 'unknown error'}`);
+    } finally {
+      setBusy(false);
+    }
   }
 
   function close() {
@@ -135,7 +142,7 @@ export default function PackImportModal({ open, onClose, onCommit }) {
             type="button"
             className="primary-button"
             onClick={apply}
-            disabled={!scan || scan.matches.length === 0}
+            disabled={busy || !scan || scan.matches.length === 0}
           >
             Import {scan?.matches.length ?? 0} into library
           </button>

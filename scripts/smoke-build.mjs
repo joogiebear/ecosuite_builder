@@ -8,6 +8,13 @@ let pluginCount = 0;
 let templateCount = 0;
 let roundTripOk = 0;
 
+const minimumImportCoverage = new Map([
+  ['EcoItems/custom-item', 10],
+  ['EcoArmor/armor-set', 15],
+  ['EcoCrates/crate-config', 18],
+  ['EcoShop/shop-config', 20],
+]);
+
 for (const plugin of pluginCatalog) {
   pluginCount += 1;
 
@@ -28,6 +35,15 @@ for (const plugin of pluginCatalog) {
       if (!parsed || !parsed.values) {
         throw new Error('parseYamlDraft returned no values');
       }
+
+      const coverageKey = `${plugin.id}/${template.id}`;
+      const minimumMatched = minimumImportCoverage.get(coverageKey);
+      if (minimumMatched !== undefined && parsed.matched.length < minimumMatched) {
+        throw new Error(
+          `parseYamlDraft mapped ${parsed.matched.length} fields for ${coverageKey}; expected at least ${minimumMatched}`,
+        );
+      }
+
       roundTripOk += 1;
     } catch (error) {
       failures.push({
